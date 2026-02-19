@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import SellerProfile from "./SellerProfile";
-import SellerProducts from "./SellerProducts";
-import SellerOrders from "./SellerOrders";
+import SellerProfile from "./sellerProfile";
+import SellerProducts from "./sellerProducts";
+import SellerOrders from "./sellerOrders";
 import SellerWithdraw from "./sellerWithdraw";
 import BaseUrl from "../../constant/Url";
 
