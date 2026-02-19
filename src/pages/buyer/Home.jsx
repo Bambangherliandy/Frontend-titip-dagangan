@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchProducts } from "../../store/slices/productSlice";
 import { fetchCart, addToCart } from "../../store/slices/cartSlice";
 import { fetchProfile, logout } from "../../store/slices/authSlice";
-import Profile from "../../component/profile";
+import Profile from "../../component/Profile";
 import Chatbot from "../../component/Chatbot";
 import axios from "axios";
 import BaseUrl from "../../constant/Url";
