@@ -1,61 +1,32 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { fetchProducts } from "../../store/slices/productSlice";
+import { fetchCart, addToCart } from "../../store/slices/cartSlice";
+import { fetchProfile, logout } from "../../store/slices/authSlice";
 import Profile from "../../component/profile";
-import BaseUrl from "../../constant/Url";
 import Chatbot from "../../component/Chatbot";
+import axios from "axios";
+import BaseUrl from "../../constant/Url";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [activeMenu, setActiveMenu] = useState("products");
-  const [cart, setCart] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
-  const [profile, setProfile] = useState(null);
   const [hasSeller, setHasSeller] = useState(false);
-  const navigate = useNavigate();
 
-  const token = localStorage.getItem("access_token");
-  const authHeader = { Authorization: `Bearer ${token}` };
+  // ambil dari Redux store
+  const { products } = useSelector((state) => state.products);
+  const { cartItems, cart } = useSelector((state) => state.cart);
+  const { profile } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    fetchProducts();
-    fetchCart();
-    fetchProfile();
+    dispatch(fetchProducts());
+    dispatch(fetchCart());
+    dispatch(fetchProfile());
     checkSeller();
   }, []);
-
-  async function fetchProfile() {
-    try {
-      const { data } = await axios.get(`${BaseUrl}/user/profile`, {
-        headers: authHeader,
-      });
-      setProfile(data.data);
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
-    }
-  }
-
-  async function fetchProducts() {
-    try {
-      const { data } = await axios.get(`${BaseUrl}/pub/products`);
-      setProducts(data.data || []);
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    }
-  }
-
-  async function fetchCart() {
-    try {
-      const { data } = await axios.get(`${BaseUrl}/cart`, {
-        headers: authHeader,
-      });
-      setCart(data.data);
-      setCartItems(data.data.items || []);
-    } catch (error) {
-      console.error("Failed to fetch cart:", error);
-    }
-  }
 
   async function checkSeller() {
     const token = localStorage.getItem("access_token");
@@ -71,43 +42,41 @@ export default function Home() {
 
   async function handleAddToCart(product_id) {
     try {
-      await axios.post(
-        `${BaseUrl}/cart`,
-        { product_id, quantity: 1 },
-        { headers: authHeader }
-      );
+      await dispatch(addToCart(product_id));
+      dispatch(fetchCart());
       alert("Produk berhasil ditambahkan ke cart!");
-      fetchCart(); // refresh cart
     } catch (error) {
-      alert(error.response?.data?.message || "Gagal menambahkan ke cart");
+      alert("Gagal menambahkan ke cart");
     }
   }
 
   async function handleRemoveItem(id) {
+    const token = localStorage.getItem("access_token");
     try {
       await axios.delete(`${BaseUrl}/cart/${id}`, {
-        headers: authHeader,
+        headers: { Authorization: `Bearer ${token}` },
       });
-      fetchCart();
+      dispatch(fetchCart());
     } catch (error) {
       alert(error.response?.data?.message || "Gagal menghapus item");
     }
   }
 
   async function handleClearCart() {
+    const token = localStorage.getItem("access_token");
     try {
       await axios.delete(`${BaseUrl}/cart/clear`, {
-        headers: authHeader,
+        headers: { Authorization: `Bearer ${token}` },
       });
-      fetchCart();
+      dispatch(fetchCart());
     } catch (error) {
       alert(error.response?.data?.message || "Gagal mengosongkan cart");
     }
   }
 
   function handleLogout() {
-    localStorage.removeItem("access_token");
-    navigate("/login");
+    dispatch(logout());
+    navigate("/");
   }
 
   const filteredProducts = products.filter((p) =>
@@ -134,7 +103,7 @@ export default function Home() {
             <button
               onClick={() => {
                 setActiveMenu("cart");
-                fetchCart();
+                dispatch(fetchCart());
               }}
               className={`w-full text-left block py-3 px-6 text-gray-700 hover:bg-green-100 ${
                 activeMenu === "cart" ? "bg-green-100 font-semibold" : ""
@@ -285,7 +254,6 @@ export default function Home() {
                     </div>
                   ))}
 
-                  {/* Total */}
                   <div className="flex justify-between items-center pt-4">
                     <p className="font-bold text-lg">
                       Total: Rp {cart?.total_price?.toLocaleString("id-ID")}
@@ -320,16 +288,13 @@ export default function Home() {
           )}
 
           {/* Profile */}
-          {/* Profile */}
           {activeMenu === "profile" && (
             <div className="bg-white rounded-xl shadow p-6">
               <div>
-                {" "}
-                {/* <-- ganti <p> jadi <div> */}
                 {activeMenu === "profile" && (
                   <Profile
                     profile={profile}
-                    onUpdate={(updatedProfile) => setProfile(updatedProfile)}
+                    onUpdate={(updatedProfile) => dispatch(fetchProfile())}
                   />
                 )}
               </div>

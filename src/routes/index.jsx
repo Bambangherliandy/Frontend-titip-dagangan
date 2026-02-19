@@ -11,7 +11,7 @@ import SellerRegister from "../pages/seller/sellerRegister";
 
 const authLoader = () => {
   const token = localStorage.getItem("access_token");
-  if (!token) throw redirect("/login");
+  if (!token) throw redirect("/");
   return null;
 };
 
@@ -19,7 +19,6 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <PublicHome />,
-    index: true,
   },
   {
     path: "/app",

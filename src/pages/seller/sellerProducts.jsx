@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import BaseUrl from "../../constant/Url";
+import { FileUploaderRegular } from "@uploadcare/react-uploader";
+import "@uploadcare/react-uploader/core.css";
 
 export default function SellerProducts() {
   const [products, setProducts] = useState([]);
@@ -15,6 +17,7 @@ export default function SellerProducts() {
     weight: "",
     category_id: "",
     commission_percentage: 0,
+    image: "",
   });
 
   useEffect(() => {
@@ -56,6 +59,7 @@ export default function SellerProducts() {
       weight: product.weight,
       category_id: product.category_id,
       commission_percentage: product.commission_percentage,
+      image: product.image || "",
     });
     setShowForm(true);
   }
@@ -70,6 +74,7 @@ export default function SellerProducts() {
       weight: "",
       category_id: "",
       commission_percentage: 0,
+      image: "",
     });
     setShowForm(false);
   }
@@ -129,7 +134,6 @@ export default function SellerProducts() {
         </button>
       </div>
 
-      {/* FORM TAMBAH/EDIT */}
       {showForm && (
         <div className="border rounded-lg p-4 mb-6 bg-gray-50">
           <h3 className="font-medium mb-3">
@@ -188,6 +192,29 @@ export default function SellerProducts() {
                 ))}
               </select>
             </div>
+
+            {/* UPLOAD FOTO */}
+            <div>
+              <label className="text-sm text-gray-500 block mb-1">
+                Foto Produk
+              </label>
+              {form.image && (
+                <img
+                  src={form.image}
+                  alt="preview"
+                  className="w-32 h-32 object-cover rounded mb-2"
+                />
+              )}
+              <FileUploaderRegular
+                pubkey="f175522ebe5846404f77"
+                onFileUploadSuccess={(file) => {
+                  setForm({ ...form, image: file.cdnUrl });
+                }}
+                imgOnly
+                multiple={false}
+              />
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -207,7 +234,6 @@ export default function SellerProducts() {
         </div>
       )}
 
-      {/* LIST PRODUK */}
       {products.length === 0 ? (
         <p className="text-gray-400 text-sm">Belum ada produk</p>
       ) : (
@@ -217,21 +243,34 @@ export default function SellerProducts() {
               key={product.id}
               className="border rounded-lg p-4 flex justify-between items-center"
             >
-              <div>
-                <p className="font-medium">{product.name}</p>
-                <p className="text-sm text-gray-500">
-                  {formatRupiah(product.price)} · Stok: {product.stock} · Berat:{" "}
-                  {product.weight}g
-                </p>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    product.status === "active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {product.status}
-                </span>
+              <div className="flex items-center gap-4">
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
+                    No Image
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">{product.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {formatRupiah(product.price)} · Stok: {product.stock} ·
+                    Berat: {product.weight}g
+                  </p>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${
+                      product.status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {product.status}
+                  </span>
+                </div>
               </div>
               <div className="flex gap-2">
                 <button

@@ -75,6 +75,15 @@ export default function SellerDashboard() {
         <SellerProfile seller={seller} onUpdate={fetchProfile} />
       )}
       {activeTab === "withdraw" && <SellerWithdraw seller={seller} />}
+
+      <div className="btn pt-6">
+        <button
+          onClick={() => navigate("/app/home")}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          back to home
+        </button>
+      </div>
     </div>
   );
 }

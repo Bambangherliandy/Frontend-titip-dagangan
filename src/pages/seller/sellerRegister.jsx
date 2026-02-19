@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProvinces, fetchCities } from "../../store/slices/locationSlice";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import BaseUrl from "../../constant/Url";
 
 export default function SellerRegister() {
   const navigate = useNavigate();
-  const [provinces, setProvinces] = useState([]);
-  const [cities, setCities] = useState([]);
+  const dispatch = useDispatch();
+  const { provinces, cities } = useSelector((state) => state.location);
   const [form, setForm] = useState({
     store_name: "",
     store_description: "",
@@ -15,32 +17,11 @@ export default function SellerRegister() {
   });
 
   useEffect(() => {
-    fetchProvinces();
+    dispatch(fetchProvinces());
   }, []);
 
-  async function fetchProvinces() {
-    const token = localStorage.getItem("access_token");
-    try {
-      const { data } = await axios.get(`${BaseUrl}/orders/cities`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProvinces(data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function fetchCities(provinceId) {
-    const token = localStorage.getItem("access_token");
-    try {
-      const { data } = await axios.get(
-        `${BaseUrl}/orders/cities?province_id=${provinceId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setCities(data.data);
-    } catch (error) {
-      console.log(error);
-    }
+  function handleProvinceChange(provinceId) {
+    dispatch(fetchCities(provinceId));
   }
 
   async function handleSubmit(e) {
@@ -97,7 +78,7 @@ export default function SellerRegister() {
           <label className="text-sm text-gray-500">Provinsi</label>
           <select
             className="w-full border p-2 rounded mt-1"
-            onChange={(e) => fetchCities(e.target.value)}
+            onChange={(e) => handleProvinceChange(e.target.value)}
           >
             <option value="">Pilih Provinsi</option>
             {provinces.map((p) => (
