@@ -1,3 +1,3 @@
-const BaseUrl = "http://localhost:3000";
+const BaseUrl = "https://bambangherliandy.com";
 
 export default BaseUrl;
